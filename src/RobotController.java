@@ -1,4 +1,6 @@
 
+	
+
 public class RobotController {
 
 	// MEMBERS
@@ -17,23 +19,11 @@ public class RobotController {
 	private Button mR270Button;
 	private Button mR360Button;
 	*/
-	
-	
-	public static void main(String[] args) {
-		
-		// On Load
-		//setupRobot();
-		
 
-		testAllRobotCommands();
+	// CONSTRUCTORS
+	public RobotController() {
+		System.out.println("Creating RobotController object.");
 		
-		
-		//clockwise360turn();
-		//counter360turn();
-		
-	}
-	
-	private void setupRobot() {
 		// Create Robot
 		mKarel = new Robot();
 		
@@ -67,7 +57,7 @@ public class RobotController {
 		// Setup Command
 		//mPower = getPowerState();
 		//mSpeed = getSpeedSetting();
-		mRotation.setRotationDegrees(Robot.rotate90);
+		mRotation.setRotationDegrees(degreeOpCode);
 		//mRotation.setRotationDirection(mDirection.getOpCode());
 		RobotCommand command = new RobotCommand(mPower, mSpeed, mRotation);
 		
@@ -95,9 +85,11 @@ public class RobotController {
 	public void rotate360() {
 		// Build command for 90 degrees
 		// Send & Execute the RobotCommand
-		executeCommand(buildCommand(Robot.rotate90));
+		executeCommand(buildCommand(Robot.rotate360));
 	}
 
+	
+	// TESTING METHODS
 	public void testRobotConvenienceMethods() {
 		// Log the process
 		System.out.println("Robot Convenience Methods:");
@@ -119,6 +111,7 @@ public class RobotController {
 		rotate270();
 		rotate360();
 	}
+	
 	
 	public static void testAllRobotCommands() {
 		// Create a Robot to execute command
@@ -161,62 +154,25 @@ public class RobotController {
 		}
 	}
 	
-	
-	
-	public static void clockwise360turn() {
-		System.out.println("Executing 4 consecutive Clockwise turn with pause at each point: ");
-		// Create the Robot
-		Robot karel = new Robot();
+	public void testAllConvenienceMethods() {
 		
-		// Create Power and power Karel the Robot to on
-		Power p = new Power(Robot.on);
+		for (int i = 0; i < 2; i++) {
 		
-		// Set the Speed to 'slow'
-		Speed s = new Speed(Robot.slow);
+			// Log which direction to test rotation
+			if (i == 0) System.out.println("Testing All Clockwise Commands: ");
+			if (i == 1) {
+				System.out.println("Testing All Counter-Clockwise Rotation: ");
+				// Change the direction of the rotation to Robot.counter
+				mRotation.setRotationDirection(Robot.counter);
+			}
+			rotate90();
+			rotate180();
+			rotate270();
+			rotate360();
 		
-		// Create a Rotation Object
-		Rotation r = new Rotation(Robot.rotate90, Robot.clockwise);
-
-		
-		// Package Power, Speed & Rotation into a 'Command' object
-		RobotCommand command = new RobotCommand(p,s,r);
-		
-		for (int i = 0; i < 4; i++) {
-			// Use Convenience Method for setting the robot through the Command Object
-			command.set(karel);
-			
-			// Pass the Command and Execute
-			karel.Execute();
+			// Add a blank new line for formating output
+			System.out.println();
 		}
-		System.out.println();
-	}
-	
-	public static void counter360turn() {
-		System.out.println("Executing 4 consecutive Counter-Clockwise turn with pause at each point: ");
-		// Create the Robot
-		Robot karel = new Robot();
-		
-		// Create Power and power Karel the Robot to on
-		Power p = new Power(Robot.on);
-		
-		// Set the Speed to 'slow'
-		Speed s = new Speed(Robot.slow);
-		
-		// Create a Rotation Object
-		Rotation r = new Rotation(Robot.rotate90, Robot.counter);
-
-		
-		// Package Power, Speed & Rotation into a 'Command' object
-		RobotCommand command = new RobotCommand(p,s,r);
-		
-		for (int i = 0; i < 4; i++) {
-			// Use Convenience Method for setting the robot through the Command Object
-			command.set(karel);
-		
-			// Pass the Command and Execute
-			karel.Execute();
-		}
-		System.out.println();
 	}
 	
 	
