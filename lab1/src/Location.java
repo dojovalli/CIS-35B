@@ -1,7 +1,7 @@
 import java.util.HashMap;
 
 @SuppressWarnings("unused")
-public class Location {
+public class Location implements StoreInterface<Location> {
 
 	// DEBUG
 	private static final boolean DEBUG = true;
@@ -12,6 +12,7 @@ public class Location {
 	// FLAGS
 	private static final double UNSET = -1;
 	public static final String INVALID_FORMAT = "Invalid Format";
+	public static final int INVALID_COMPARE = -2;
 	
 	// KEYS
 	public static final String KEY_LAT = "Latitude";
@@ -20,7 +21,9 @@ public class Location {
 	public static final String KEY_STATE = "State";
 	
 	// MEMBERS
-	private static String mFields[] = { KEY_LAT, KEY_LONG, KEY_CITY, KEY_STATE };
+	
+	private static String[] sFields = { KEY_LAT, KEY_LONG, KEY_CITY, KEY_STATE };
+	private  String[] mFields = { KEY_LAT, KEY_LONG, KEY_CITY, KEY_STATE };
 	private double mLatitude;
 	private double mLongitude;
 	private String mCity;
@@ -28,10 +31,7 @@ public class Location {
 	
 	// CONSTRUCTOR
 	public Location() {
-		mLatitude = UNSET;
-		mLongitude = UNSET;
-		mCity = null;
-		mState = null;
+		this(UNSET, UNSET, null, null);
 	}
 	
 	public Location(double latitude, double longitude, String city, String state) {
@@ -64,6 +64,10 @@ public class Location {
 								+ "Re-run the program and try again.");
 		}
 	}
+	
+	public static Location newInstance() {
+		return new Location();
+	}
 
 	// CONVENIENCE METHODS
 	public boolean isValid() {
@@ -76,7 +80,22 @@ public class Location {
 		return isValid;
 	}
 	
+	public int compareTo(Location c) {
+		int comparisonInt = INVALID_COMPARE;
+		
+		// Combine City/State
+		String thisCombinedCityState = this.getCity() + ", " + this.getState().toUpperCase();
+		String cCombinedCityState = c.getCity() + ", " + c.getState().toUpperCase();
+		
+		// Implenment a comparison based on the city name
+		//comparisonInt = this.getCity().compareTo(c.getCity());
+		comparisonInt = thisCombinedCityState.compareTo(cCombinedCityState);
+		
+		return comparisonInt;
+	}
+	
 	// OVERRIDES
+	@Override
 	public String toString() {
 		String str = super.toString() + "\n";
 		
@@ -112,6 +131,8 @@ public class Location {
 			
 		return isEqual;
 	}
+	
+	
 	
 	// GETTERS & SETTERS
 	public void set(HashMap<String, String> locationMap) {
@@ -152,7 +173,10 @@ public class Location {
 		mState = state;
 	}
 	
-	public static String[] getFields() {
+	public static String[] getSFields() {
+		return sFields;
+	}
+	public String[] getFields() {
 		return mFields;
 	}
 

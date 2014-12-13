@@ -18,7 +18,8 @@ public class ConsoleController {
 	
 	// MEMBERS
 	private String mRecentInput;
-	private LocationStore mLocationStore;
+	//private LocationStore mLocationStore;
+	private Store<Location> mLocationStore;
 	private Location mOrigin;
 	private Location mDestination;
 	
@@ -45,14 +46,18 @@ public class ConsoleController {
 	// CONVENIENCE METHODS
 	private void setupSystemLocations() {
 		// Get the Locations available in the System
-		mLocationStore = LocationStore.get();
-		mLocationStore.setLocations("Coordinates.xml");
+		mLocationStore = (Store<Location>) Store.newInstance(Location.class.getClass());
+		//mLocationStore = LocationStore.get();
+		// Create an XMLReader object for the Coordinates.xml file
+		XMLReader coordinates = new XMLReader("Coordinates.xml", "Location", Location.getSFields());
+		//mLocationStore.setLocations(coordinates);
+		mLocationStore.setItems(coordinates);
 		
 		// Sort list of Locations
 		mLocationStore.sort();
 		
 		if (DEBUG && DEBUG_STORE) System.out.println("SORTED LOCATIONS:");
-		if (DEBUG && DEBUG_STORE) System.out.println(mLocationStore.getLocations().toString());
+		if (DEBUG && DEBUG_STORE) System.out.println(mLocationStore.getItems().toString());
 	}
 	
 	private void promptUserForLocations() {
@@ -121,9 +126,15 @@ public class ConsoleController {
 			isValidLocation = loc.isValid();
 			if (isValidLocation) {
 				// Check to see if the Location exists within the SystemLocations
-				locationExists = mLocationStore.getLocations().contains(loc);
+				locationExists = mLocationStore.getItems().contains(loc);
 				if (locationExists) {
-					loc = mLocationStore.get(loc);
+					//loc = mLocationStore.get(loc);
+					int locIndex = mLocationStore.binarySearch(loc);
+					if (locIndex != -1) {
+						loc = (Location) mLocationStore.getItems().get(locIndex);
+					} else {
+						System.out.println("The Location could not be found");
+					}
 				} else {
 					
 				}

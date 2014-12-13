@@ -16,6 +16,7 @@ import org.w3c.dom.NodeList;
  * @author Matthew Valli
  *
  */
+@SuppressWarnings("unused")
 public class LocationStore {
 
 	// DEBUG
@@ -23,9 +24,12 @@ public class LocationStore {
 	private static final boolean DEBUG_NODES = false;
 	private static final boolean DEBUG_CONTAINS = false;
 	
+	// FLAGS
+	public static final int NOT_FOUND= -1;
+	
 	// MEMBERS
 	private static LocationStore mLocationStore;
-	private static ArrayList<Location> mLocations;
+	private ArrayList<Location> mLocations;
 	
 	// CONSTRUCTOR
 	private LocationStore() {
@@ -40,13 +44,13 @@ public class LocationStore {
 		return mLocationStore;
 	}
 	
-	public ArrayList<Location> getLocations() {
+	public ArrayList<Location> getItems() {
 		return mLocations;
 	}
 	
 	public Location get(Location loc) {
 		// Check each element of the Array for equality
-		for (Location l : getLocations()) {
+		for (Location l : getItems()) {
 			// If the supplied location is equal to the location in the array, return the location in the array
 			if (l.equals(loc)) return l;
 		}
@@ -54,6 +58,32 @@ public class LocationStore {
 		// If no location matches, return null
 		return null;
 	}
+	
+	public int binarySearch( Location x )
+    {
+		System.out.println("Search using binarySearch");
+        int low = 0;
+        int high = mLocations.size() - 1;
+        int mid;
+
+        while( low <= high )
+        {
+        	// Calculate Mid Value
+            mid = ( low + high ) / 2;
+            // Compare Locations
+            int compareVal = mLocations.get( mid ).compareTo( x );
+            
+            // Set High/Lows or Return Index value
+            if( compareVal < 0 )
+                low = mid + 1;
+            else if(  compareVal > 0 )
+                high = mid - 1;
+            else
+                return mid;
+        }
+
+        return NOT_FOUND;     // NOT_FOUND = -1
+    }
 	
 	public void sort() {
 		mLocations.sort(new Comparator<Location>() {
@@ -69,7 +99,7 @@ public class LocationStore {
 		boolean containsLoc = false;
 		
 		// Check each element of the Array for equality
-		for (Location l : getLocations()) {
+		for (Location l : getItems()) {
 			// If the supplied location is equal to the location in the array, return the location in the array
 			if (DEBUG && DEBUG_CONTAINS) System.out.println(l.getCity() + ", " + l.getState() + " : " + loc.getCity() + ", " + loc.getState() );
 			if (l.equals(loc)) return true;
@@ -83,19 +113,34 @@ public class LocationStore {
 	 * 
 	 * @param xmlFileName
 	 */
-	public void setLocations(String xmlFileName) {
+	public void setLocations(XMLReader reader) {
+		if (DEBUG && DEBUG_NODES) System.out.println("Enter setLocations(String xmlFileName)");
+		
+		try {
+			// Parse the NodeList and create Location Objects from the Node Data
+			mLocations = generateItemArrayList(Location.getSFields(), reader.getNodeHashMaps());
+			if (DEBUG && DEBUG_NODES) System.out.println(mLocations.toString());
+			
+		} catch (Exception e ) {
+			System.out.print("Exception: ");
+			e.printStackTrace();
+		} 
+	}
+	public void setLocations(String xmlFilename, String element, String[] fields) {
 		
 		if (DEBUG && DEBUG_NODES) System.out.println("Enter setLocations(String xmlFileName)");
 		
 		try {
 			// Read the XML File
-			Document loctionXML = XMLReader.ReadXML("Coordinates.xml");
+			//Document loctionXML = XMLReader.ReadXML("Coordinates.xml");
+			XMLReader locationXML = new XMLReader(xmlFilename, element, Location.getSFields());
 			
 			// Create a NodeList based on the Location tag
-			NodeList locationNodes = XMLReader.GetNodes(loctionXML,  "Location");
+			//NodeList locationNodes = XMLReader.GetNodes(loctionXML,  "Location");
 			
 			// Parse the NodeList and create Location Objects from the Node Data
-			mLocations = getLocations(locationNodes, Location.getFields());
+			//mLocations = getItems(locationNodes, Location.getFields());
+			mLocations = generateItemArrayList(fields, locationXML.getNodeHashMaps());
 			if (DEBUG && DEBUG_NODES) System.out.println(mLocations.toString());
 			
 		} catch (Exception e ) {
@@ -104,8 +149,30 @@ public class LocationStore {
 		} 
 	}
 	
-
-	public static ArrayList<Location> getLocations(NodeList nodelist, String[] selements)
+	
+	// Generates an ArrayList<T> of Type T objects from an ArrayList of HashMap<String,String> representing the class Type T
+		public ArrayList<Location> generateItemArrayList(String[] fields, ArrayList<HashMap<String,String>> itemsAsHashMaps) {
+			
+			// Create a new ArrayList of Type T
+			ArrayList<Location> objectList = new ArrayList<Location>();
+			
+			// Convert the HashMap into Objects of Type T
+			for (int i = 0; i < itemsAsHashMaps.size(); i++) {
+				// Create a new Object of Type T
+				Location obj = new Location();
+				
+				// Use the Abstract Method T.set(HashMap map) to setup the object
+				obj.set(itemsAsHashMaps.get(i));
+				
+				// Add the Object to the ArrayList of Type T objects
+				objectList.add(obj);
+			}
+			
+			return objectList;
+		}
+	
+/*
+	public static ArrayList<Location> getItems(NodeList nodelist, String[] selements)
 	{
 		ArrayList<Location> locationList = new ArrayList<Location>();
         for(int s=0; s<nodelist.getLength() ; s++)
@@ -140,5 +207,6 @@ public class LocationStore {
         }
         return locationList;
 	}
+	*/
 
 }

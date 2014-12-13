@@ -18,11 +18,6 @@ public class DistanceCalculator {
 	private Location mDestination;
 	private double mDistance;
 	
-	// INTERFACE
-	interface TripPlanner {
-		public void promptUser(String prompt);
-	}
-	
 	
 	// CONSTRUCTORS
 	public DistanceCalculator() {
